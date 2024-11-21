@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import dbConect from './src/db/configs.js'
 import routes from './src/routes/index.js';
+import cookieParser from 'cookie-parser';
 const app = express();
 
 // Middleware to parse JSON request bodies
@@ -9,6 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 
 // Middleware to log request details
@@ -21,6 +23,7 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     const allowedOrigins = [process.env.URL_LOCAL, process.env.URL_SERVER];
     const origin = req.headers.origin;
+
   
     if (allowedOrigins.includes(origin)) {
         res.header('Access-Control-Allow-Origin', origin);

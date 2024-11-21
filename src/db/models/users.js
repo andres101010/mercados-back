@@ -8,6 +8,10 @@ const users = new Schema({
     level:{type: Number, required:true},
     isActive:{type: Boolean, required:true, default:true},
     avatar:{type: String, default:null},
+    carnet:{type: String, default:null},
+    phone:{type: String, default:null},
+    cargo:{type: String, default:null},
+    token:{type: String, default:null},
     created_at: {type: Date, default: Date.now},
     updated_at: {type: Date, default: Date.now},
 })

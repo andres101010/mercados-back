@@ -18,7 +18,7 @@ class User {
     // Crear nuevo usuario
     async createUser(req,res) {
         try {
-            const { name, lastName, email, password, level } = req.body;
+            const { name, lastName, email, password, level, avatar, cargo, carnet,phone } = req.body;
             
             // Verificar si el usuario ya existe
             const fields = { email };
@@ -41,7 +41,11 @@ class User {
                 lastName,
                 email,
                 password: hashedPassword,
-                level,
+                level : parseInt(level),
+                avatar,
+                cargo,
+                carnet,
+                phone
             });
             await nuevoUsuario.save();
     
@@ -62,6 +66,25 @@ class User {
                 message: "Error creating user",
                 error: error.message,
             })
+        }
+    }
+
+    async editUser(req,res) {
+        try {
+           
+            const { id } = req.params;
+            const usuarioExistente = await this.findUser({ _id: id });
+            if (!usuarioExistente) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+    
+            const usuarioActualizado = await Users.findByIdAndUpdate(id, req.body, { new: true });
+    
+            
+            return res.status(200).json({ message: 'Usuario actualizado correctamente', usuario: usuarioActualizado });
+        } catch (error) {
+            console.log("Error creating user", error);
+            return res.status(500).json({ message: 'Error al actualizar el usuario', error: error.message });
         }
     }
 
@@ -93,6 +116,16 @@ class User {
                 const userWithoutPassword = { ...user.toObject() };
                 delete userWithoutPassword.password;
                 // return { userFound: userWithoutPassword, token };
+                const cookieOptions = {
+                    httpOnly: true,       // La cookie no será accesible desde JavaScript en el frontend
+                    secure: process.env.NODE_ENV === 'production',  // Solo 'true' en producción (solo se enviará en HTTPS)
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',   // La cookie solo se envía para solicitudes al mismo sitio (ajústalo según tus necesidades)
+                    maxAge: 24 * 60 * 60 * 1000  // La duración de la cookie en milisegundos (por ejemplo, 1 día)
+                };
+                
+                res.cookie('jwt', token, cookieOptions);
+                user.token = token;
+                await user.save()
                 res.status(200).json({
                     message: "User logged in successfully",
                     user: userWithoutPassword,
@@ -137,6 +170,16 @@ class User {
         } catch (error) {
             console.error("Error:", error);
             return { error: "Error updating password" };
+        }
+    }
+
+    async getAllUsers(req,res) {
+        try {
+            const users = await Users.find()
+            res.status(200).json({message: "Success", users})
+        } catch (error) {
+            console.log("error", error);
+            response.status(500).json({message: "Error getting users", error});
         }
     }
 }
