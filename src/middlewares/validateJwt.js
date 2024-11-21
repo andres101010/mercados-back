@@ -74,6 +74,7 @@ import User from '../db/models/users.js'; // Asegúrate de que 'user.services.js
 //   }
 // };
 
+
 export const verifyToken = (req, res, next) => {
   const token = req.cookies.jwt; // Asegúrate de que esté usando req.cookies.jwt
   if (!token) {
