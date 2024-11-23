@@ -4,6 +4,7 @@ import mercadoController from "../controllers/mercados.js";
 import localControllers from "../controllers/local.js";
 import arrendatariosControllers from "../controllers/arrendatarios.js";
 import pagosControllers from "../controllers/pago.js";
+import infoControllers from "../controllers/info.js";
 import { verifyToken } from "../middlewares/validateJwt.js";
 export default (app) => {
 
@@ -84,4 +85,7 @@ export default (app) => {
 
     //Get Pagos
     app.get('/getPagos/:id/:local/:mercado', verifyToken, pagosControllers.getPagosByArrendatario.bind(pagosControllers))
+
+    //INFO
+    app.get('/getInfo', verifyToken, infoControllers.getInfo.bind(infoControllers))
 }

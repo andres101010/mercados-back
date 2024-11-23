@@ -8,7 +8,9 @@ class LocalControllers {
     async findAllLocals(req, res) {
         try {
             const {place} = req.params;
-            const nameMercado = place.replace('-',' ')
+            // const nameMercado = place.replace('-',' ')
+            const nameMercado = place.replace(/-/g, ' ');
+
             const mercado = await Mercado.findOne({nombre: nameMercado})
             const allLocals = await Local.find({mercado: mercado._id})
             res.status(200).json({message:"Success", allLocals})
@@ -48,7 +50,9 @@ class LocalControllers {
     async createLocal(req, res) {
         try {
             const {place} = req.params;
-            const nameMercado = place.replace('-',' ')
+            // const nameMercado = place.replace('-',' ')
+            const nameMercado = place.replace(/-/g, ' ');
+
             console.log("nameMercado", nameMercado);
             const mercado = await Mercado.findOne({nombre: nameMercado})
            
@@ -100,14 +104,18 @@ class LocalControllers {
     async editLocal(req, res) {
         try {
             const { id } = req.params;
-            const { nombre, carnet, mercado, number, arrendatario, fecha } = req.body;
-            console.log(nombre, carnet, mercado, number, arrendatario, fecha);
+            const { nombre, carnet, mercado, number, arrendatario, fecha, newNumber } = req.body;
+            console.log(nombre, carnet, mercado, number, arrendatario, fecha, newNumber);
             // Verificar si el local existe
             const localExists = await Local.findById(id);
             if (!localExists) {
                 return res.status(404).json({ message: "El local no existe." });
             }
-            console.log("arrendatario",arrendatario);
+            
+            if (newNumber && localExists.number == newNumber && localExists.mercado.toString() == mercado.toString()){
+                return res.status(404).json({ message: "Este Numero Ya Esta En Uso." });
+            }
+            console.log("arrendatario", arrendatario);
             const arrendatarioExistente = await Arrendatario.findOne({_id: arrendatario});
             
             if (!arrendatarioExistente) return res.status(404).json({ message: "El Arrendatario no existe." });
@@ -120,7 +128,9 @@ class LocalControllers {
                 return res.status(404).json({ message: "El local ya esta asignado a este arrendatario." });
             }
             const fechaToString = new Date(fecha).toISOString().split("T")[0];
-            console.log("fecha", fechaToString);
+
+
+
             // Actualizar el local con los datos proporcionados
             const updatedLocal = await Local.findByIdAndUpdate(
                 id,

@@ -66,7 +66,8 @@ class Arrendatarios {
     async getAllArrendatarios(req, res) {
         try {
             const {place} = req.params;
-            const nameMercado = place.replace('-',' ')
+            // const nameMercado = place.replace('-',' ')
+            const nameMercado = place.replace(/-/g, ' ');
             const mercado = await Mercado.findOne({nombre: nameMercado})
             // Usamos populate para obtener el campo 'nombre' de 'Mercado' y 'número' de 'Local'
             const arrendatarios = await Arrendatario.find({mercado: mercado._id})

@@ -35,12 +35,14 @@ class PagoController {
                 });
             }
             
+            const montoDia = monto / diasPagados.length
            
             const nuevoPago = new Pago({
                 arrendatario,
                 local,
                 diasPagados: fechasNuevas,
                 monto,
+                montoPorDia: montoDia
             });
             await nuevoPago.save();
 
