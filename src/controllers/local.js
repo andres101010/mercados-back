@@ -111,12 +111,14 @@ class LocalControllers {
             if (!localExists) {
                 return res.status(404).json({ message: "El local no existe." });
             }
+
+         
             
             if (newNumber && localExists.number == newNumber && localExists.mercado.toString() == mercado.toString()){
                 return res.status(404).json({ message: "Este Numero Ya Esta En Uso." });
             }
             console.log("arrendatario", arrendatario);
-            const arrendatarioExistente = await Arrendatario.findOne({_id: arrendatario});
+            const arrendatarioExistente = await Arrendatario.findOne({name: arrendatario});
             
             if (!arrendatarioExistente) return res.status(404).json({ message: "El Arrendatario no existe." });
             const idArrendatrio = arrendatarioExistente._id;
@@ -130,6 +132,26 @@ class LocalControllers {
             const fechaToString = new Date(fecha).toISOString().split("T")[0];
 
 
+            const arrendatarioIdExistente = await Arrendatario.findOne({
+                local: id // Busca si el ID está en el array "local"
+            });
+            
+            if (arrendatarioIdExistente) {
+                // Si el ID existe, eliminarlo del array "local"
+                const result = await Arrendatario.updateOne(
+                    { _id: arrendatarioIdExistente._id }, // Identificar el documento por su _id
+                    { $pull: { local: id } } // Eliminar el ID del array "local"
+                );
+            
+                if (result.modifiedCount > 0) {
+                    console.log("El ID se eliminó del array 'local' del arrendatario:", arrendatarioIdExistente);
+                } else {
+                    console.log("No se pudo eliminar el ID del array 'local'.");
+                }
+            } else {
+                console.log("El ID no existe en la propiedad 'local'.");
+            }
+            
 
             // Actualizar el local con los datos proporcionados
             const updatedLocal = await Local.findByIdAndUpdate(
