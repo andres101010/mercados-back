@@ -18,6 +18,35 @@ class InfoControllers {
                 }
             }
         });
+        // console.log("pagosSemana", pagosSemana);
+
+        const pagosPorDia = {
+            lunes: 0,
+            martes: 0,
+            miércoles: 0,
+            jueves: 0,
+            viernes: 0,
+            sábado: 0,
+            domingo: 0
+        };
+        
+        // Recorre los pagos y suma los montos por día
+        pagosSemana.forEach(pago => {
+            const { diasPagados, montoPorDia } = pago;
+        
+            diasPagados.forEach(dia => {
+                // Obtén el día de la semana en español
+                const diaSemana = moment(dia, 'YYYY-MM-DD').locale('es').format('dddd');
+                
+                // Normaliza a minúsculas y asigna al objeto correspondiente
+                const diaNormalizado = diaSemana.toLowerCase();
+        
+                if (pagosPorDia[diaNormalizado] !== undefined) {
+                    pagosPorDia[diaNormalizado] += montoPorDia;
+                }
+            });
+        });
+        
 
         // // Calcular el monto total de pagos
         // const montoTotalSemana = pagosSemana.reduce((total, pago) => total + pago.monto, 0);
@@ -84,7 +113,8 @@ class InfoControllers {
             montoTotal: montoTotalSemana,
             mercados: longitudMercados,
             arrendatarios: longitudArrendatarios,
-            result: resultado
+            result: resultado,
+            pagosPorDia
         });
 
         } catch (error) {
