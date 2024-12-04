@@ -77,8 +77,30 @@ class User {
             if (!usuarioExistente) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
+
+            // Verificar si se ha subido una nueva imagen
+            let avatarPath = usuarioExistente.avatar;  // Mantener el avatar existente si no se subió uno nuevo
+
+            if (req.file) {
+                // Si se subió un archivo, actualizar el campo de avatar con la ruta del archivo
+                avatarPath = req.file.path;  // Guarda la ruta completa del archivo
+            }
+
+
+            const updatedData = {
+                ...req.body,
+                carnet: req.body.carnet ? Number(req.body.carnet) : usuarioExistente.carnet,
+                phone: req.body.phone ? Number(req.body.phone) : usuarioExistente.phone,
+                avatar: avatarPath,  // Actualizar avatar con la nueva ruta
+            };
+
+            const usuarioActualizado = await Users.findByIdAndUpdate(
+                id, 
+                updatedData, 
+                { new: true }
+            );
     
-            const usuarioActualizado = await Users.findByIdAndUpdate(id, req.body, { new: true });
+            // const usuarioActualizado = await Users.findByIdAndUpdate(id, req.body, { new: true });
     
             
             return res.status(200).json({ message: 'Usuario actualizado correctamente', usuario: usuarioActualizado });
@@ -126,10 +148,16 @@ class User {
                 res.cookie('jwt', token, cookieOptions);
                 user.token = token;
                 await user.save()
+                const avatarUrl = `${req.protocol}://${req.get('host')}/${user.avatar}`;
                 res.status(200).json({
                     message: "User logged in successfully",
-                    user: userWithoutPassword,
+                    // user: userWithoutPassword,
+                    user: {
+                        ...userWithoutPassword,  // Propiedades del usuario sin la contraseña
+                        avatarUrl: avatarUrl     // Añadir avatarUrl dentro del objeto user
+                    },
                     token,
+                    
                 })
             }
         } catch (error) {

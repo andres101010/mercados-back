@@ -3,14 +3,32 @@ import morgan from 'morgan';
 import dbConect from './src/db/configs.js'
 import routes from './src/routes/index.js';
 import cookieParser from 'cookie-parser';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs';
+
 const app = express();
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
 
 // Middleware to parse JSON request bodies
 
+app.use(express.json({ limit: "50mb" })); // Para JSON
+app.use(express.urlencoded({ extended: true, limit: "50mb" })); // Para formularios
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use('/uploads', express.static('uploads'));
+
 
 
 // Middleware to log request details

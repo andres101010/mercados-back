@@ -6,6 +6,7 @@ import arrendatariosControllers from "../controllers/arrendatarios.js";
 import pagosControllers from "../controllers/pago.js";
 import infoControllers from "../controllers/info.js";
 import { verifyToken } from "../middlewares/validateJwt.js";
+import { upload } from "../helpers/upload.js";
 export default (app) => {
 
     app.get('/', (req, res) => {
@@ -17,10 +18,10 @@ export default (app) => {
     app.get('/findAllUsers', verifyToken, userController.getAllUsers.bind(userController))
 
     // Crear usuarios
-    app.post('/createUsers', userController.createUser.bind(userController));
+    app.post('/createUsers',  upload.single("avatar"), userController.createUser.bind(userController));
     
     //Edit Users
-    app.put('/editUser/:id', userController.editUser.bind(userController));
+    app.put('/editUser/:id', upload.single("avatar"), userController.editUser.bind(userController));
 
     // Inicio de sesión
     app.post('/loginUser', userController.userLogin.bind(userController));
