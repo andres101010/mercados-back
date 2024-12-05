@@ -148,7 +148,7 @@ class User {
                 res.cookie('jwt', token, cookieOptions);
                 user.token = token;
                 await user.save()
-                const avatarUrl = `${req.protocol}://${req.get('host')}/${user.avatar}`;
+                const avatarUrl = user.avatar ? `${req.protocol}://${req.get('host')}/${user.avatar}` : null;
                 res.status(200).json({
                     message: "User logged in successfully",
                     // user: userWithoutPassword,
