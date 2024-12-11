@@ -5,6 +5,7 @@ import localControllers from "../controllers/local.js";
 import arrendatariosControllers from "../controllers/arrendatarios.js";
 import pagosControllers from "../controllers/pago.js";
 import infoControllers from "../controllers/info.js";
+import pdfControllers from "../controllers/pdf.js";
 import { verifyToken } from "../middlewares/validateJwt.js";
 import { upload } from "../helpers/upload.js";
 export default (app) => {
@@ -89,4 +90,8 @@ export default (app) => {
 
     //INFO
     app.get('/getInfo', verifyToken, infoControllers.getInfo.bind(infoControllers))
+
+    //PDF
+
+    app.get('/:place/pdf', verifyToken, pdfControllers.getInfoPdf.bind(pdfControllers))
 }
