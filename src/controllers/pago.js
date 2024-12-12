@@ -5,7 +5,6 @@ class PagoController {
     async createPago(req,res){
         try {
             const { arrendatario, local, diasPagados, monto } = req.body;
-            console.log("diasPagados",diasPagados);
             
             // Validar que los datos mínimos estén presentes
             if (!arrendatario || !local || !diasPagados || diasPagados.length === 0) {
@@ -18,7 +17,7 @@ class PagoController {
                  return res.status(400).json({ error: `Las siguientes fechas son inválidas: ${diasInvalidos.join(', ')}` });
              }
 
-            const pagoHechos = await Pago.find({arrendatario:arrendatario});
+            const pagoHechos = await Pago.find({arrendatario:arrendatario, local:local});
            
 
               // Consolidar todas las fechas ya pagadas en un solo array
