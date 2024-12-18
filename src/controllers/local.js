@@ -12,7 +12,7 @@ class LocalControllers {
             const nameMercado = place.replace(/-/g, ' ');
 
             const mercado = await Mercado.findOne({nombre: nameMercado})
-            const allLocals = await Local.find({mercado: mercado._id})
+            const allLocals = await Local.find({mercado: mercado._id}).populate('arrendatario')
             res.status(200).json({message:"Success", allLocals})
         } catch (error) {
             console.log("error", error);
@@ -185,7 +185,25 @@ class LocalControllers {
         }
     }
     
-
+    async createObservacion(req,res) {
+        try {
+            const { id } = req.params
+            const { fecha, observacion } = req.body
+         
+            const fechaToString = new Date(fecha).toISOString().split("T")[0];
+            const localDb = await Local.findById(id)
+            if(!localDb) return res.status(404).json({message: "Not Found"});
+            if (!Array.isArray(localDb.observaciones)) {
+                localDb.observaciones = [];
+            }
+            localDb.observaciones.push({fecha: fechaToString, observacion});
+            await localDb.save();
+            res.status(200).json({ message: "Observacion Agregada con exito" });
+        } catch (error) {
+            console.error("Error: ", error);
+            res.status(500).json({ message: "Error al crear observacion", error });
+        }
+    }
 
 }
 

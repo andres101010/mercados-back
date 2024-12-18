@@ -9,6 +9,12 @@ const local = new Schema({
     arrendatario: { type: mongoose.Schema.Types.ObjectId, ref: 'Arrendatario' },
     status: { type: String, enum: ["libre", "asignado"], default: "libre" },
     fechaDeContrato: { type: String },
+    observaciones: [
+        {
+            fecha: { type: String, required: true },
+            observacion: { type: String, required: true },
+        },
+    ],
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
 });

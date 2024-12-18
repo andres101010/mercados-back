@@ -62,6 +62,9 @@ export default (app) => {
     // Delete Local
     app.delete('/deleteLocal:id', verifyToken, localControllers.deleteLocal.bind(localControllers))
 
+    // Pagos
+    app.post('/createObservacion/:id', verifyToken, localControllers.createObservacion.bind(localControllers))
+
     //Arrendatarios
     //Create Arrendatarios
     app.post('/createArrendatario/:place', verifyToken, arrendatariosControllers.createArrendatario.bind(arrendatariosControllers))
