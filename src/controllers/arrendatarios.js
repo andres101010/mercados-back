@@ -4,7 +4,7 @@ class Arrendatarios {
     async createArrendatario(req, res) {
         try {
             const {place} = req.params;
-            const { name, lastName, cedula, phone, address } = req.body;
+            const { name, lastName, cedula, phone, address, rubro } = req.body;
             
     
             // Verifica si el arrendatario ya existe basándote en el campo único `cedula`
@@ -25,6 +25,7 @@ class Arrendatarios {
                 cedula,
                 phone,
                 address,
+                rubro,
                 mercado: mercado._id,
                 // local // Array de locales
             });

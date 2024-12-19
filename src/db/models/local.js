@@ -11,8 +11,8 @@ const local = new Schema({
     fechaDeContrato: { type: String },
     observaciones: [
         {
-            fecha: { type: String, required: true },
-            observacion: { type: String, required: true },
+            fecha: { type: String },
+            observacion: { type: String},
         },
     ],
     created_at: { type: Date, default: Date.now },
