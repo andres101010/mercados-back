@@ -8,6 +8,7 @@ import infoControllers from "../controllers/info.js";
 import pdfControllers from "../controllers/pdf.js";
 import { verifyToken } from "../middlewares/validateJwt.js";
 import { upload } from "../helpers/upload.js";
+import ticketsControllers from "../controllers/tickets.js";
 export default (app) => {
 
     app.get('/', (req, res) => {
@@ -26,6 +27,9 @@ export default (app) => {
 
     // Inicio de sesión
     app.post('/loginUser', userController.userLogin.bind(userController));
+
+    // Cerrar Session
+    app.post('/logoutUser', userController.userLogout.bind(userController));
 
     // Recuperar contraseña
     app.put('/recoverPasswordUser', userController.recoverPassword.bind(userController));
@@ -95,6 +99,14 @@ export default (app) => {
     app.get('/getInfo', verifyToken, infoControllers.getInfo.bind(infoControllers))
 
     //PDF
-
     app.get('/:place/pdf', verifyToken, pdfControllers.getInfoPdf.bind(pdfControllers))
+
+    //Tickets
+    app.post('/createTickets', verifyToken, ticketsControllers.createTickets.bind(ticketsControllers))
+
+    app.get('/getTickets/:date?', verifyToken, ticketsControllers.getTickets.bind(ticketsControllers))
+
+    app.put('/editTickets', verifyToken, ticketsControllers.editTicket.bind(ticketsControllers))
+
+    app.delete('/deleteTickets/:id', verifyToken, ticketsControllers.deleteTickets.bind(ticketsControllers))
 }

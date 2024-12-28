@@ -170,6 +170,19 @@ class User {
         }
     }
 
+    async userLogout(req, res) {
+        try {
+            res.clearCookie('jwt', {
+                httpOnly: true,       // La cookie no será accesible desde JavaScript en el frontend
+                secure: process.env.NODE_ENV === 'production',  // Solo 'true' en producción (solo se enviará en HTTPS)
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',   // La cookie solo se envía para solicitudes al mismo sitio (ajústalo según tus necesidades)
+            });
+            res.status(200).json({ message: 'Sesión cerrada correctamente' });
+        } catch (error) {
+            console.log("error", error);
+            res.status(404).json({message: "Error logging out", error: error})
+        }
+    }
     // Recuperación de contraseña
     async recoverPassword(req,res) {
         try {
