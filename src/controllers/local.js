@@ -3,6 +3,7 @@ import Local from "../db/models/local.js";
 import { response } from "express";
 import Mercado from "../db/models/mercados.js";
 import Arrendatario from "../db/models/arrendatario.js";
+import Historial from "../db/models/historial.js";
 
 class LocalControllers {
     async findAllLocals(req, res) {
@@ -104,8 +105,9 @@ class LocalControllers {
     async editLocal(req, res) {
         try {
             const { id } = req.params;
-            const { nombre, carnet, mercado, number, arrendatario, fecha, newNumber } = req.body;
-            console.log(nombre, carnet, mercado, number, arrendatario, fecha, newNumber);
+            // const { nombre, carnet, mercado, number, arrendatario, fecha, newNumber } = req.body;
+            const { mercado, number, arrendatario, fecha, newNumber } = req.body;
+            // console.log(nombre, carnet, mercado, number, arrendatario, fecha, newNumber);
             // Verificar si el local existe
             const localExists = await Local.findById(id);
             if (!localExists) {
@@ -117,8 +119,12 @@ class LocalControllers {
             if (newNumber && localExists.number == newNumber && localExists.mercado.toString() == mercado.toString()){
                 return res.status(404).json({ message: "Este Numero Ya Esta En Uso." });
             }
-            console.log("arrendatario", arrendatario);
+            // console.log("arrendatario", arrendatario);
             const arrendatarioExistente = await Arrendatario.findOne({name: arrendatario});
+            // console.log("arrendatarioExistente", arrendatarioExistente);
+
+            const nombre = arrendatarioExistente.name + " " + arrendatarioExistente.lastName;
+            const cedula = arrendatarioExistente.cedula;
             
             if (!arrendatarioExistente) return res.status(404).json({ message: "El Arrendatario no existe." });
             const idArrendatrio = arrendatarioExistente._id;
@@ -135,7 +141,7 @@ class LocalControllers {
             const arrendatarioIdExistente = await Arrendatario.findOne({
                 local: id // Busca si el ID está en el array "local"
             });
-            
+            console.log("arrendatarioIdExistente", arrendatarioIdExistente);
             if (arrendatarioIdExistente) {
                 // Si el ID existe, eliminarlo del array "local"
                 const result = await Arrendatario.updateOne(
@@ -156,7 +162,7 @@ class LocalControllers {
             // Actualizar el local con los datos proporcionados
             const updatedLocal = await Local.findByIdAndUpdate(
                 id,
-                { name: nombre, carnet, number, arrendatario:idArrendatrio, fechaDeContrato:fechaToString, status: "asignado" },
+                { name: nombre, carnet : cedula, number, arrendatario:idArrendatrio, fechaDeContrato:fechaToString, status: "asignado" },
                 { new: true }
             );
 
@@ -202,6 +208,49 @@ class LocalControllers {
         } catch (error) {
             console.error("Error: ", error);
             res.status(500).json({ message: "Error al crear observacion", error });
+        }
+    }
+
+    async resetLocal(req,res){
+        try {
+            const {id} = req.params;
+            const local = await Local.findById(id);
+            if(!local) return res.status(404).json({message: "Local no encontrado"});
+            const arrendatarioLocalId = await Arrendatario.findById(local.arrendatario);
+            if(arrendatarioLocalId){
+                arrendatarioLocalId.local = arrendatarioLocalId.local.filter(item => item.toString()!== id);
+                await arrendatarioLocalId.save();
+                const newHistorial = new Historial({
+                    local: local._id,
+                    mercado: local.mercado,
+                    arrendatario: arrendatarioLocalId._id,
+                    fechaInicial: local.fechaDeContrato,
+                    fechaFinal: new Date().toISOString().split("T")[0],
+                    observaciones: local.observaciones?.map(obs => ({
+                        fecha: obs.fecha,
+                        observacion: obs.observacion,
+                    }))
+                });
+    
+                await newHistorial.save();
+
+            } else {
+               return res.status(500).json({message: 'Este Puesto aun no esta Asignado.'})
+            }
+
+
+            local.status = "libre";
+            local.arrendatario = null;
+            // local.mercado = null;
+            local.carnet = null;
+            local.fechaDeContrato = null;
+            local.name = null;
+            local.observaciones = [];
+            await local.save();
+            res.status(200).json({message: "Local reseteado con exito"});
+        } catch (error) {
+            console.log("error", error);
+            res.status(500).json({message: "Error al resetear el local", error });
         }
     }
 

@@ -69,6 +69,9 @@ export default (app) => {
     // Pagos
     app.post('/createObservacion/:id', verifyToken, localControllers.createObservacion.bind(localControllers))
 
+    // Historial
+    app.put('/resetLocal/:id', verifyToken, localControllers.resetLocal.bind(localControllers))
+
     //Arrendatarios
     //Create Arrendatarios
     app.post('/createArrendatario/:place', verifyToken, arrendatariosControllers.createArrendatario.bind(arrendatariosControllers))
