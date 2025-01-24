@@ -4,28 +4,57 @@ import moment from "moment";
 class PagoController {
     async createPago(req,res){
         try {
-            const { arrendatario, local, diasPagados, monto } = req.body;
+            const { arrendatario, local, diasPagados, monto, mes, excludedDates  } = req.body;
             
+
+            // Convertir el mes en un formato que podamos usar
+const monthDate = new Date(mes);
+const year = monthDate.getFullYear();
+const month = monthDate.getMonth(); // Enero es 0, Febrero es 1, etc.
+console.log("month", month);
+
+// Obtener la cantidad total de días del mes
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+// Crear un array con todos los días del mes
+const allDays = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1;
+    // Formatear la fecha como 'YYYY-MM-DD'
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+});
+
+// Excluir las fechas del array total
+const paidDays = allDays.filter(day => !excludedDates.includes(day));
+
+// Calcular el monto por día
+const dailyAmount = monto / paidDays.length;
+
+// Resultado
+console.log("Días totales en el mes:", daysInMonth);
+console.log("Días pagados:", paidDays);
+console.log("Días pagados total:", paidDays.length);
+console.log("Monto por día:", dailyAmount.toFixed(2));
+
             // Validar que los datos mínimos estén presentes
-            if (!arrendatario || !local || !diasPagados || diasPagados.length === 0) {
-                return res.status(400).json({ error: 'Todos los campos son obligatorios y debe haber al menos un día pagado.' });
-            }
+            // if (!arrendatario || !local || !diasPagados || diasPagados.length === 0) {
+            //     return res.status(400).json({ error: 'Todos los campos son obligatorios y debe haber al menos un día pagado.' });
+            // }
 
              // Validar formato de fechas
-             const diasInvalidos = diasPagados.filter(dia => !moment(dia, 'YYYY-MM-DD', true).isValid());
-             if (diasInvalidos.length > 0) {
-                 return res.status(400).json({ error: `Las siguientes fechas son inválidas: ${diasInvalidos.join(', ')}` });
-             }
+            //  const diasInvalidos = diasPagados.filter(dia => !moment(dia, 'YYYY-MM-DD', true).isValid());
+            //  if (diasInvalidos.length > 0) {
+            //      return res.status(400).json({ error: `Las siguientes fechas son inválidas: ${diasInvalidos.join(', ')}` });
+            //  }
 
-            const pagoHechos = await Pago.find({arrendatario:arrendatario, local:local});
+            // const pagoHechos = await Pago.find({arrendatario:arrendatario, local:local});
            
 
-              // Consolidar todas las fechas ya pagadas en un solo array
-            const fechasPagadas = pagoHechos.flatMap(pago => pago.diasPagados);
+            //   // Consolidar todas las fechas ya pagadas en un solo array
+            // const fechasPagadas = pagoHechos.flatMap(pago => pago.diasPagados);
 
             // Dividir las fechas en dos grupos: ya pagadas y nuevas válidas
-            const fechasYaPagadas = diasPagados.filter(fecha => fechasPagadas.includes(fecha));
-            const fechasNuevas = diasPagados.filter(fecha => !fechasPagadas.includes(fecha));
+            const fechasYaPagadas = paidDays.filter(fecha => paidDays.includes(fecha));
+            const fechasNuevas = paidDays.filter(fecha => !paidDays.includes(fecha));
 
             if (fechasNuevas.length === 0) {
                 return res.status(400).json({
@@ -34,14 +63,15 @@ class PagoController {
                 });
             }
             
-            const montoDia = monto / diasPagados.length
-           
+            // const montoDia = monto / diasPagados.length
             const nuevoPago = new Pago({
                 arrendatario,
                 local,
-                diasPagados: fechasNuevas,
+                diasPagados: paidDays,
                 monto,
-                montoPorDia: montoDia
+                montoPorDia:  dailyAmount.toFixed(2),
+                diasExcluidos: excludedDates,
+                mes: month == 0 ? "Enero" : month == 1 ? "Febrero" : month == 2 ? "Marzo" : month == 3 ? "Abril" : month == 4 ? "Mayo" : month == 5 ? "Junio" : month == 6 ? "Julio" : month == 7 ? "Agosto" : month == 8 ? "Septiembre" : month == 9 ? "Octubre" : month == 10 ? "Noviembre" : month == 11 ? "Diciembre" : null,
             });
             await nuevoPago.save();
 
@@ -49,7 +79,7 @@ class PagoController {
                 message: fechasYaPagadas.length > 0
                     ? 'Pago registrado parcialmente. Algunas fechas ya estaban pagadas.'
                     : 'Pago registrado exitosamente.',
-                fechasRegistradas: fechasNuevas,
+                // fechasRegistradas: fechasNuevas,
                 advertencia: fechasYaPagadas.length > 0 ? fechasYaPagadas : null,
                 // pago: nuevoPago,
             });
