@@ -27,7 +27,10 @@ class PDF {
                 
                 const idLocal = place.replace('contrato','').trim();
                 const local = await Local.findOne({ _id: idLocal }).populate('mercado arrendatario')
-                res.status(200).json([{contrato:local}])
+                const pago = await Pago.findOne({local: idLocal})
+                
+                // res.status(200).json([{contrato:local}])
+                res.status(200).json([{ contrato: { ...local.toObject(), pago } }]);
 
             }
         } catch (error) {

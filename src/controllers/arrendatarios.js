@@ -14,8 +14,10 @@ class Arrendatarios {
                 return res.status(401).json({ message: "El Arrendatario Ya Existe!!!" });
             }
 
-            const nameMercado = place.replace('-',' ')
+            const nameMercado = place.replace(/-/g, ' ')
+            
             const mercado = await Mercado.findOne({nombre: nameMercado})
+            
 
     
             // Crea y guarda el nuevo arrendatario con un array de locales

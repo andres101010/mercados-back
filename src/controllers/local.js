@@ -254,6 +254,15 @@ class LocalControllers {
         }
     }
 
+    async getHistorial(req, res){
+        try {
+            
+        } catch (error) {
+            console.log("error", error);
+            res.status(500).json({message: "Error al traer el historial", error})
+        }
+    }
+
 }
 
 const localControllers = new LocalControllers();

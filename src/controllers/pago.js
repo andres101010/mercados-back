@@ -6,36 +6,33 @@ class PagoController {
         try {
             const { arrendatario, local, diasPagados, monto, mes, excludedDates  } = req.body;
             
+            const pagoDB = await Pago.find({arrendatario:arrendatario})
 
-            // Convertir el mes en un formato que podamos usar
-const monthDate = new Date(mes);
-const year = monthDate.getFullYear();
-const month = monthDate.getMonth(); // Enero es 0, Febrero es 1, etc.
-console.log("month", month);
+                        // Convertir el mes en un formato que podamos usar
+            const monthDate = new Date(mes);
+            const year = monthDate.getFullYear();
+            const month = monthDate.getMonth(); // Enero es 0, Febrero es 1, etc.
 
-// Obtener la cantidad total de días del mes
-const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-// Crear un array con todos los días del mes
-const allDays = Array.from({ length: daysInMonth }, (_, i) => {
-    const day = i + 1;
-    // Formatear la fecha como 'YYYY-MM-DD'
-    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-});
+            if(excludedDates.length > 0) {
 
-// Excluir las fechas del array total
-const paidDays = allDays.filter(day => !excludedDates.includes(day));
+                // Obtener la cantidad total de días del mes
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                
+                // Crear un array con todos los días del mes
+                const allDays = Array.from({ length: daysInMonth }, (_, i) => {
+                    const day = i + 1;
+                    // Formatear la fecha como 'YYYY-MM-DD'
+                    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                });
+                
+                // Excluir las fechas del array total
+                const paidDays = allDays.filter(day => !excludedDates.includes(day));
+                
+                // Calcular el monto por día
+                const dailyAmount = monto / paidDays.length;
 
-// Calcular el monto por día
-const dailyAmount = monto / paidDays.length;
-
-// Resultado
-console.log("Días totales en el mes:", daysInMonth);
-console.log("Días pagados:", paidDays);
-console.log("Días pagados total:", paidDays.length);
-console.log("Monto por día:", dailyAmount.toFixed(2));
-
-            // Validar que los datos mínimos estén presentes
+                 // Validar que los datos mínimos estén presentes
             // if (!arrendatario || !local || !diasPagados || diasPagados.length === 0) {
             //     return res.status(400).json({ error: 'Todos los campos son obligatorios y debe haber al menos un día pagado.' });
             // }
@@ -56,6 +53,7 @@ console.log("Monto por día:", dailyAmount.toFixed(2));
             const fechasYaPagadas = paidDays.filter(fecha => paidDays.includes(fecha));
             const fechasNuevas = paidDays.filter(fecha => !paidDays.includes(fecha));
 
+       
             if (fechasNuevas.length === 0) {
                 return res.status(400).json({
                     error: 'Todas las fechas proporcionadas ya han sido pagadas.',
@@ -83,6 +81,42 @@ console.log("Monto por día:", dailyAmount.toFixed(2));
                 advertencia: fechasYaPagadas.length > 0 ? fechasYaPagadas : null,
                 // pago: nuevoPago,
             });
+
+            } else {
+
+                const formattedDate = monthDate.toISOString().split('T')[0];
+                const arrDayPago = [formattedDate];
+               
+                const fechaYaPagada = pagoDB.some((row) => row.diasPagados.includes(formattedDate));
+
+                
+
+                if(fechaYaPagada) return res.status(404).json({message: 'Fecha ya pagada'})
+         
+
+                const nuevoPago = new Pago({
+                    arrendatario,
+                    local,
+                    diasPagados: arrDayPago,
+                    monto,
+                    montoPorDia:  monto,
+                    diasExcluidos: excludedDates,
+                    mes: month == 0 ? "Enero" : month == 1 ? "Febrero" : month == 2 ? "Marzo" : month == 3 ? "Abril" : month == 4 ? "Mayo" : month == 5 ? "Junio" : month == 6 ? "Julio" : month == 7 ? "Agosto" : month == 8 ? "Septiembre" : month == 9 ? "Octubre" : month == 10 ? "Noviembre" : month == 11 ? "Diciembre" : null,
+                });
+                await nuevoPago.save();
+    
+                return res.status(201).json({
+                    message:'success'
+                });
+            }
+
+// Resultado
+// console.log("Días totales en el mes:", daysInMonth);
+// console.log("Días pagados:", paidDays);
+// console.log("Días pagados total:", paidDays.length);
+// console.log("Monto por día:", dailyAmount.toFixed(2));
+
+           
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
