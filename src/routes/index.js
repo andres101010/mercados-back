@@ -9,6 +9,7 @@ import pdfControllers from "../controllers/pdf.js";
 import { verifyToken } from "../middlewares/validateJwt.js";
 import { upload } from "../helpers/upload.js";
 import ticketsControllers from "../controllers/tickets.js";
+import historialControllers from "../controllers/historial.js";
 export default (app) => {
 
     app.get('/', (req, res) => {
@@ -71,6 +72,8 @@ export default (app) => {
 
     // Historial
     app.put('/resetLocal/:id', verifyToken, localControllers.resetLocal.bind(localControllers))
+
+    app.get('/historial/:id', verifyToken, historialControllers.getHistorial.bind(historialControllers))
 
     //Arrendatarios
     //Create Arrendatarios
