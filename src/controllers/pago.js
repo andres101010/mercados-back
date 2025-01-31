@@ -43,16 +43,18 @@ class PagoController {
             //      return res.status(400).json({ error: `Las siguientes fechas son inválidas: ${diasInvalidos.join(', ')}` });
             //  }
 
-            // const pagoHechos = await Pago.find({arrendatario:arrendatario, local:local});
+            const pagoHechos = await Pago.find({arrendatario:arrendatario, local:local});
            
 
-            //   // Consolidar todas las fechas ya pagadas en un solo array
-            // const fechasPagadas = pagoHechos.flatMap(pago => pago.diasPagados);
-
+              // Consolidar todas las fechas ya pagadas en un solo array
+            const fechasPagadas = pagoHechos.flatMap(pago => pago.diasPagados);
+            // console.log("excludedDates",excludedDates);
+            // console.log("paisdays", paidDays);
             // Dividir las fechas en dos grupos: ya pagadas y nuevas válidas
-            const fechasYaPagadas = paidDays.filter(fecha => paidDays.includes(fecha));
-            const fechasNuevas = paidDays.filter(fecha => !paidDays.includes(fecha));
-
+            const fechasYaPagadas = paidDays.filter(fecha => fechasPagadas.includes(fecha));
+            const fechasNuevas = paidDays.filter(fecha => !fechasPagadas.includes(fecha));
+            // console.log("fechasYaPagadas",fechasYaPagadas);
+            // console.log("fechasNuevas",fechasNuevas);
        
             if (fechasNuevas.length === 0) {
                 return res.status(400).json({
