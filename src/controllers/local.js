@@ -194,7 +194,7 @@ class LocalControllers {
     async createObservacion(req,res) {
         try {
             const { id } = req.params
-            const { fecha, observacion } = req.body
+            const { fecha, falta, numDeNotificacion, observacion } = req.body
          
             const fechaToString = new Date(fecha).toISOString().split("T")[0];
             const localDb = await Local.findById(id)
@@ -202,7 +202,7 @@ class LocalControllers {
             if (!Array.isArray(localDb.observaciones)) {
                 localDb.observaciones = [];
             }
-            localDb.observaciones.push({fecha: fechaToString, observacion});
+            localDb.observaciones.push({fecha: fechaToString, falta: falta, numNotificacion: numDeNotificacion, observacion});
             await localDb.save();
             res.status(200).json({ message: "Observacion Agregada con exito" });
         } catch (error) {

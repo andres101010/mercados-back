@@ -12,7 +12,9 @@ const local = new Schema({
     observaciones: [
         {
             fecha: { type: String },
+            falta: { type: String },
             observacion: { type: String},
+            numNotificacion: { type: String}
         },
     ],
     created_at: { type: Date, default: Date.now },
