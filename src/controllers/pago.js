@@ -5,7 +5,8 @@ class PagoController {
     async createPago(req,res){
         try {
             const { arrendatario, local, diasPagados, monto, mes, excludedDates  } = req.body;
-            
+            console.log("diasPagados", diasPagados)
+            console.log("excludedDates", excludedDates)
             const pagoDB = await Pago.find({arrendatario:arrendatario})
 
                         // Convertir el mes en un formato que podamos usar
@@ -14,8 +15,7 @@ class PagoController {
             const month = monthDate.getMonth(); // Enero es 0, Febrero es 1, etc.
 
 
-            if(excludedDates.length > 0) {
-
+            if(excludedDates.length > 0 && diasPagados.length > 0) {
                 // Obtener la cantidad total de días del mes
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 
@@ -63,11 +63,10 @@ class PagoController {
                 });
             }
             
-            // const montoDia = monto / diasPagados.length
             const nuevoPago = new Pago({
                 arrendatario,
                 local,
-                diasPagados: paidDays,
+                diasPagados: diasPagados,
                 monto,
                 montoPorDia:  dailyAmount.toFixed(2),
                 diasExcluidos: excludedDates,
