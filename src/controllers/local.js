@@ -107,7 +107,7 @@ class LocalControllers {
             const { id } = req.params;
             // const { nombre, carnet, mercado, number, arrendatario, fecha, newNumber } = req.body;
             const { mercado, number, arrendatario, fecha, newNumber } = req.body;
-            // console.log(nombre, carnet, mercado, number, arrendatario, fecha, newNumber);
+            // console.log(  mercado, number, arrendatario, fecha, newNumber);
             // Verificar si el local existe
             const localExists = await Local.findById(id);
             if (!localExists) {
@@ -129,6 +129,7 @@ class LocalControllers {
             if (!arrendatarioExistente) return res.status(404).json({ message: "El Arrendatario no existe." });
             const idArrendatrio = arrendatarioExistente._id;
             if (!arrendatarioExistente.local.includes(id)) {
+                // console.log("entroooo")
                 arrendatarioExistente.local.push(id);
                 await arrendatarioExistente.save();
                 console.log("Local agregado al arrendatario");
@@ -144,16 +145,16 @@ class LocalControllers {
             console.log("arrendatarioIdExistente", arrendatarioIdExistente);
             if (arrendatarioIdExistente) {
                 // Si el ID existe, eliminarlo del array "local"
-                const result = await Arrendatario.updateOne(
-                    { _id: arrendatarioIdExistente._id }, // Identificar el documento por su _id
-                    { $pull: { local: id } } // Eliminar el ID del array "local"
-                );
+                // const result = await Arrendatario.updateOne(
+                //     { _id: arrendatarioIdExistente._id }, // Identificar el documento por su _id
+                //     { $pull: { local: id } } // Eliminar el ID del array "local"
+                // );
             
-                if (result.modifiedCount > 0) {
-                    console.log("El ID se eliminó del array 'local' del arrendatario:", arrendatarioIdExistente);
-                } else {
-                    console.log("No se pudo eliminar el ID del array 'local'.");
-                }
+                // if (result.modifiedCount > 0) {
+                //     console.log("El ID se eliminó del array 'local' del arrendatario:", arrendatarioIdExistente);
+                // } else {
+                //     console.log("No se pudo eliminar el ID del array 'local'.");
+                // }
             } else {
                 console.log("El ID no existe en la propiedad 'local'.");
             }
