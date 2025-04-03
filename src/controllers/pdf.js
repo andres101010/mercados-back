@@ -19,10 +19,10 @@ class PDF {
             if(isOnlyNumbers && !place.includes('pago') && !place.includes('observaciones') && !place.includes('todoElAño')){
                 console.log("entroo 1")
                 const arrendatarios = await Arrendatarios.find({mercado: place}).populate('local mercado')
-                res.status(200).json(arrendatarios);
+                res.status(200).json([{reporte:arrendatarios}]);
             } 
             if(endsWithPago){ 
-
+                console.log("entrooo 2")
                 const idArrendatario = place.replace('pago', ' ').trim();
                 // const pago = await Pago.findOne({arrendatario: idArrendatario}).sort({ fechaPago: -1 }).populate('arrendatario local');
                 
@@ -52,7 +52,7 @@ class PDF {
             if(endsWithPagoTodoElAño){
                 console.log("entrooooooooo")
                 const idArrendatario = place.replace('todoElAño', ' ').trim();
-                console.log("idArrendatario",idArrendatario)
+                // console.log("idArrendatario",idArrendatario)
                 // Función para obtener días del mes sin los excluidos
             
                 const getDiasDelMes = (mes, diasPagados, diasExcluidos) => {
@@ -70,7 +70,7 @@ class PDF {
                     }
                 
                     const anio = moment(primerDia, "YYYY-MM-DD").year(); // Extraer el año
-                    console.log("Año extraído:", anio);
+                    // console.log("Año extraído:", anio);
                 
                     const meses = {
                         "enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6,
@@ -111,8 +111,8 @@ class PDF {
                     const diasPagadosUnicos = new Set(diasPagados.map(dia => moment(dia).format('YYYY-MM-DD')));
                     const diasExcluidosUnicos = new Set(diasExcluidos.map(dia => moment(dia).format('YYYY-MM-DD')));
                     
-                    console.log("diasExcluidosUnicos", diasExcluidosUnicos);
-                    console.log("diasExcluidosCount", diasExcluidosUnicos.size);
+                    // console.log("diasExcluidosUnicos", diasExcluidosUnicos);
+                    // console.log("diasExcluidosCount", diasExcluidosUnicos.size);
                 
                     // Clave única para el mes y año
                     const claveMesAnio = `${mes}-${anio}`;
@@ -178,8 +178,8 @@ class PDF {
                   const mesesOrdenados = ordenarMeses(resumenPagos);
 
                 
-                console.log("Resumen de Pagos:", resumenPagos);
-                console.log("Deuda Anual:", deudaAnual);
+                // console.log("Resumen de Pagos:", resumenPagos);
+                // console.log("Deuda Anual:", deudaAnual);
                 
 
                 
