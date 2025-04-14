@@ -142,7 +142,10 @@ class PDF {
                 
                     // Calcular días adeudados correctamente
                     const diasTotalesConExcluidos = resumenPagos[claveMesAnio].diasTotales - totalDiasExcluidos;
-                    resumenPagos[claveMesAnio].diasAdeudados = Math.max(0, diasTotalesConExcluidos - totalDiasPagados);
+                    // console.log("diasTotalesConExcluidos",diasTotalesConExcluidos)
+                    // console.log("totalDiasPagados",totalDiasPagados)
+                    // console.log("diasTotales",diasTotales)
+                    resumenPagos[claveMesAnio].diasAdeudados = Math.max(0, diasTotales - totalDiasPagados);
                     resumenPagos[claveMesAnio].deudaMensual = resumenPagos[claveMesAnio].diasAdeudados * montoPorDia;
                 });
                 

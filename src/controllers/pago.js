@@ -5,8 +5,6 @@ class PagoController {
     async createPago(req,res){
         try {
             const { arrendatario, local, diasPagados, monto, mes, excludedDates  } = req.body;
-            console.log("diasPagados", diasPagados)
-            console.log("excludedDates", excludedDates)
             const pagoDB = await Pago.find({arrendatario:arrendatario})
 
                         // Convertir el mes en un formato que podamos usar
@@ -30,8 +28,8 @@ class PagoController {
                 const paidDays = allDays.filter(day => !excludedDates.includes(day));
                 
                 // Calcular el monto por día
-                const dailyAmount = monto / paidDays.length;
-
+                // const dailyAmount = monto / paidDays.length;
+                const dailyAmount = monto / diasPagados.length;
                  // Validar que los datos mínimos estén presentes
             // if (!arrendatario || !local || !diasPagados || diasPagados.length === 0) {
             //     return res.status(400).json({ error: 'Todos los campos son obligatorios y debe haber al menos un día pagado.' });
@@ -84,24 +82,36 @@ class PagoController {
             });
 
             } else {
-
                 const formattedDate = monthDate.toISOString().split('T')[0];
                 const arrDayPago = [formattedDate];
-               
-                const fechaYaPagada = pagoDB.some((row) => row.diasPagados.includes(formattedDate));
-
                 
+                const fecha = new Date(mes);
 
-                if(fechaYaPagada) return res.status(404).json({message: 'Fecha ya pagada'})
+                const nombreMes = new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(fecha);
+
+                // Opcional: Capitalizar la primera letra
+                const mesCapitalizado = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+
+
+                const resultado = pagoDB.find(row => row.mes === mesCapitalizado);
+                const diasPagadosDB = resultado?.diasPagados
+                const fechaYaPagada = diasPagadosDB.some((row) => row.includes(diasPagados));
+                const diasExcluidosDB = resultado?.diasExcluidos;
+
+                const pagoPorDia = diasPagados.length > 1 ? monto / diasPagados.length : monto
+                
+              
+
+                if(fechaYaPagada) return res.status(404).json({message: 'Fecha Ya Pagada o Fechas Ya Pagadas'})
          
 
                 const nuevoPago = new Pago({
                     arrendatario,
                     local,
-                    diasPagados: arrDayPago,
+                    diasPagados,
                     monto,
-                    montoPorDia:  monto,
-                    diasExcluidos: excludedDates,
+                    montoPorDia: pagoPorDia.toFixed(2),
+                    diasExcluidos: diasExcluidosDB,
                     mes: month == 0 ? "Enero" : month == 1 ? "Febrero" : month == 2 ? "Marzo" : month == 3 ? "Abril" : month == 4 ? "Mayo" : month == 5 ? "Junio" : month == 6 ? "Julio" : month == 7 ? "Agosto" : month == 8 ? "Septiembre" : month == 9 ? "Octubre" : month == 10 ? "Noviembre" : month == 11 ? "Diciembre" : null,
                 });
                 await nuevoPago.save();
@@ -110,14 +120,6 @@ class PagoController {
                     message:'success'
                 });
             }
-
-// Resultado
-// console.log("Días totales en el mes:", daysInMonth);
-// console.log("Días pagados:", paidDays);
-// console.log("Días pagados total:", paidDays.length);
-// console.log("Monto por día:", dailyAmount.toFixed(2));
-
-           
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
