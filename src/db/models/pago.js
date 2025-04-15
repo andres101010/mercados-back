@@ -9,7 +9,8 @@ const pago = new Schema({
     montoPorDia: { type: Number, required: true},
     mes: {type: String},
     local: { type: mongoose.Schema.Types.ObjectId, ref: 'Local', required: true }, // Local asociado
-    arrendatario: { type: mongoose.Schema.Types.ObjectId, ref: 'Arrendatario', required: true } // Arrendatario asociado
+    arrendatario: { type: mongoose.Schema.Types.ObjectId, ref: 'Arrendatario', required: true }, // Arrendatario asociado
+    activo: {type: Boolean, default: true}
 })
 
 const Pago = mongoose.model('Pago', pago);

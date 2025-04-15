@@ -26,7 +26,7 @@ class PDF {
                 const idArrendatario = place.replace('pago', ' ').trim();
                 // const pago = await Pago.findOne({arrendatario: idArrendatario}).sort({ fechaPago: -1 }).populate('arrendatario local');
                 
-                const pago = await Pago.findOne({ arrendatario: idArrendatario }) .sort({ fechaPago: -1 }).populate({ path: 'arrendatario local', populate: { path: 'mercado', select:'nombre' } })
+                const pago = await Pago.findOne({ arrendatario: idArrendatario, activo: true }) .sort({ fechaPago: -1 }).populate({ path: 'arrendatario local', populate: { path: 'mercado', select:'nombre' } })
                 res.status(200).json([{pago:pago}]);
             }
             if(endsWithContrato){

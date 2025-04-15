@@ -4,6 +4,7 @@ import { response } from "express";
 import Mercado from "../db/models/mercados.js";
 import Arrendatario from "../db/models/arrendatario.js";
 import Historial from "../db/models/historial.js";
+import Pago from "../db/models/pago.js";
 
 class LocalControllers {
     async findAllLocals(req, res) {
@@ -218,6 +219,22 @@ class LocalControllers {
             const local = await Local.findById(id);
             if(!local) return res.status(404).json({message: "Local no encontrado"});
             const arrendatarioLocalId = await Arrendatario.findById(local.arrendatario);
+           
+            const pagos = await Pago.find({ arrendatario: local.arrendatario, activo: true });
+
+            if (pagos.length > 0) {
+            //   console.log("Pagos encontrados:", pagos);
+            
+              // Actualizar todos a activo: false
+              for (const pago of pagos) {
+                pago.activo = false;
+                await pago.save(); // Guardar uno por uno
+              }
+            
+              console.log("Pagos actualizados con activo: false");
+            }
+            
+
             if(arrendatarioLocalId){
                 arrendatarioLocalId.local = arrendatarioLocalId.local.filter(item => item.toString()!== id);
                 await arrendatarioLocalId.save();
